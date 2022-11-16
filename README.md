@@ -1,5 +1,5 @@
 **Author**: Ian F. Shirley
-**Version**: 1.0.0 
+**Version**: 1.0.0
 
 ## Overview
 Backend server for City Explorer page
