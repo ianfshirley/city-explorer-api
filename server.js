@@ -2,6 +2,8 @@
 
 console.log('our first server');
 
+
+
 // REQUIRE
 // in our servers, we have to use 'require' instead of 'import'
 // Here we will list the requirements for a server
@@ -52,10 +54,18 @@ app.get('*', (request, response) => {
 // CLASSES
 class Forecast {
   constructor(obj) {
-    this.day1 = {
-      date: obj[0].data[0].datetime,
-      description: obj[0].data[0].description
-    };
+    [this.day1 = {
+      description: `Low of ${obj[0].data[0].min_temp}, high of ${obj[0].data[0].max_temp} with ${obj[0].data[0].weather.description.toLowerCase()}`,
+      date: obj[0].data[0].datetime
+    },
+    this.day2 = {
+      description: `Low of ${obj[0].data[1].min_temp}, high of ${obj[0].data[1].max_temp} with ${obj[0].data[1].weather.description.toLowerCase()}`,
+      date: obj[0].data[1].datetime
+    },
+    this.day3 = {
+      description: `Low of ${obj[0].data[2].min_temp}, high of ${obj[0].data[2].max_temp} with ${obj[0].data[2].weather.description.toLowerCase()}`,
+      date: obj[0].data[2].datetime
+    }];
   }
 }
 
@@ -64,4 +74,5 @@ class Forecast {
 
 // listen is an express method. it takes in a port value and a callback function
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+
 
