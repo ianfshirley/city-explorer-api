@@ -9,6 +9,8 @@ console.log('our first server');
 // Here we will list the requirements for a server
 const express = require('express');
 const data = require('./data/weather.json');
+const cors = require('cors');
+
 
 // we need to bring in our .env file
 require('dotenv').config();
@@ -18,6 +20,8 @@ require('dotenv').config();
 // here is where we will assign the required file a variable
 // React does this in one step with 'import', express takes 2 steps: require & use
 const app = express();
+// tell express to use cors
+app.use(cors());
 
 // define the PORT and validate that our .env file is working
 const PORT = process.env.PORT || 3002;
@@ -35,9 +39,12 @@ app.get('/', (request, response) => {
 });
 
 app.get('/weather', (request, response) => {
-  let lat = request.query.lat;
-  let lon = request.query.lon;
-  let searchQuery = data.filter(city => (city.lat === lat && city.lon === lon));
+  // let lat = request.query.lat;
+  // let lon = request.query.lon;
+  let cityName = request.query.city_name;
+  let searchQuery = data.filter(city => city.city_name === cityName);
+  console.log(searchQuery);
+  // let searchQuery = data.filter(city => (city.lat === lat && city.lon === lon));
   // response.send(searchQuery);
   let forecast = new Forecast(searchQuery);
   forecast.length < 1 ? response.status(500).send('Error. No weather data for this city.') : response.status(200).send(forecast);
