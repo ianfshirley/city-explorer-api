@@ -39,15 +39,23 @@ app.get('/', (request, response) => {
 });
 
 app.get('/weather', (request, response) => {
-  // let lat = request.query.lat;
-  // let lon = request.query.lon;
+
   let cityName = request.query.city_name;
-  let searchQuery = data.filter(city => city.city_name === cityName);
-  console.log(searchQuery);
-  // let searchQuery = data.filter(city => (city.lat === lat && city.lon === lon));
-  // response.send(searchQuery);
-  let forecast = new Forecast(searchQuery);
-  forecast.length < 1 ? response.status(500).send('Error. No weather data for this city.') : response.status(200).send(forecast);
+  let selectedCity = data.filter(city => city.city_name === cityName);
+  let weatherArr = selectedCity[0].data;
+  console.log('weather array',weatherArr);
+  let weatherResults = [];
+  weatherArr.forEach(day => {
+    let updatedDescription = `Low of ${day.min_temp}, high of ${day.max_temp} with ${day.weather.description.toLowerCase()}`;
+    let forecastInfoObj = {
+      description: updatedDescription,
+      date: day.datetime
+    };
+
+    weatherResults.push(new Forecast(forecastInfoObj));
+  });
+
+  weatherResults.length < 1 ? response.status(500).send('Error. No weather data for this city.') : response.status(200).send(weatherResults);
 });
 
 // this will run for any route not defined above (* is a catch-all)
@@ -61,18 +69,8 @@ app.get('*', (request, response) => {
 // CLASSES
 class Forecast {
   constructor(obj) {
-    [this.day1 = {
-      description: `Low of ${obj[0].data[0].min_temp}, high of ${obj[0].data[0].max_temp} with ${obj[0].data[0].weather.description.toLowerCase()}`,
-      date: obj[0].data[0].datetime
-    },
-    this.day2 = {
-      description: `Low of ${obj[0].data[1].min_temp}, high of ${obj[0].data[1].max_temp} with ${obj[0].data[1].weather.description.toLowerCase()}`,
-      date: obj[0].data[1].datetime
-    },
-    this.day3 = {
-      description: `Low of ${obj[0].data[2].min_temp}, high of ${obj[0].data[2].max_temp} with ${obj[0].data[2].weather.description.toLowerCase()}`,
-      date: obj[0].data[2].datetime
-    }];
+    this.description = obj.description;
+    this.date = obj.date;
   }
 }
 
