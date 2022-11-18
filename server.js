@@ -63,14 +63,13 @@ app.get('/', (request, response) => {
 
 app.get('/weather', async (request, response) => {
   try{
-    // let cityName = request.query.city_name;
     let lat = request.query.lat;
     let lon = request.query.lon;
-    // console.log('from BE, lat:', lat);
-    let weatherURL = `https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${process.env.WEATHER_API_KEY}`;
+    let weatherURL = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${lat}&lon=${lon}&key=${process.env.WEATHER_API_KEY}`;
     let newWeather = await axios.get(weatherURL);
-    console.log('here is weather data from api',stringify(newWeather.data));
-    response.status(200).send(stringify(newWeather.data));
+    // console.log('here is weather data from api',stringify(newWeather.data));
+    let newWeatherArr = newWeather.data.data.map((day) => new Forecast(day));
+    response.status(200).send(newWeatherArr);
 
   } catch (error) {
     console.log(error);
@@ -89,8 +88,10 @@ app.get('*', (request, response) => {
 // CLASSES
 class Forecast {
   constructor(obj) {
-    this.description = obj.description;
-    this.date = obj.date;
+    this.date = obj.datetime;
+    this.high = obj.high_temp;
+    this.low = obj.low_temp;
+    this.description = obj.weather.description.toLowerCase();
   }
 }
 
