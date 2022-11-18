@@ -8,8 +8,11 @@ console.log('our first server');
 // in our servers, we have to use 'require' instead of 'import'
 // Here we will list the requirements for a server
 const express = require('express');
-const data = require('./data/weather.json');
+// const data = require('./data/weather.json');
 const cors = require('cors');
+const axios = require('axios');
+const {parse, stringify} = require('flatted');
+
 
 
 // we need to bring in our .env file
@@ -38,24 +41,41 @@ app.get('/', (request, response) => {
   response.send('Hello from my server');
 });
 
-app.get('/weather', (request, response) => {
+// app.get('/weather-old', (request, response) => {
 
-  let cityName = request.query.city_name;
-  let selectedCity = data.filter(city => city.city_name === cityName);
-  let weatherArr = selectedCity[0].data;
-  console.log('weather array',weatherArr);
-  let weatherResults = [];
-  weatherArr.forEach(day => {
-    let updatedDescription = `Low of ${day.min_temp}, high of ${day.max_temp} with ${day.weather.description.toLowerCase()}`;
-    let forecastInfoObj = {
-      description: updatedDescription,
-      date: day.datetime
-    };
+//   let cityName = request.query.city_name;
+//   let selectedCity = data.filter(city => city.city_name === cityName);
+//   let weatherArr = selectedCity[0].data;
+//   console.log('weather array',weatherArr);
+//   let weatherResults = [];
+//   weatherArr.forEach(day => {
+//     let updatedDescription = `Low of ${day.min_temp}, high of ${day.max_temp} with ${day.weather.description.toLowerCase()}`;
+//     let forecastInfoObj = {
+//       description: updatedDescription,
+//       date: day.datetime
+//     };
 
-    weatherResults.push(new Forecast(forecastInfoObj));
-  });
+//     weatherResults.push(new Forecast(forecastInfoObj));
+//   });
 
-  weatherResults.length < 1 ? response.status(500).send('Error. No weather data for this city.') : response.status(200).send(weatherResults);
+//   weatherResults.length < 1 ? response.status(500).send('Error. No weather data for this city.') : response.status(200).send(weatherResults);
+// });
+
+app.get('/weather', async (request, response) => {
+  try{
+    // let cityName = request.query.city_name;
+    let lat = request.query.lat;
+    let lon = request.query.lon;
+    // console.log('from BE, lat:', lat);
+    let weatherURL = `https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${process.env.WEATHER_API_KEY}`;
+    let newWeather = await axios.get(weatherURL);
+    console.log('here is weather data from api',stringify(newWeather.data));
+    response.status(200).send(stringify(newWeather.data));
+
+  } catch (error) {
+    console.log(error);
+    response.status(500).send('weather error');
+  }
 });
 
 // this will run for any route not defined above (* is a catch-all)
