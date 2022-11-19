@@ -11,8 +11,9 @@ const express = require('express');
 // const data = require('./data/weather.json');
 const cors = require('cors');
 const axios = require('axios');
-const {parse, stringify} = require('flatted');
-
+// const {parse, stringify} = require('flatted');
+const getMovies = require('./components/movies');
+const getWeather = require('./components/weather');
 
 
 // we need to bring in our .env file
@@ -41,31 +42,11 @@ app.get('/', (request, response) => {
   response.send('Hello from my server');
 });
 
-// app.get('/weather-old', (request, response) => {
-
-//   let cityName = request.query.city_name;
-//   let selectedCity = data.filter(city => city.city_name === cityName);
-//   let weatherArr = selectedCity[0].data;
-//   console.log('weather array',weatherArr);
-//   let weatherResults = [];
-//   weatherArr.forEach(day => {
-//     let updatedDescription = `Low of ${day.min_temp}, high of ${day.max_temp} with ${day.weather.description.toLowerCase()}`;
-//     let forecastInfoObj = {
-//       description: updatedDescription,
-//       date: day.datetime
-//     };
-
-//     weatherResults.push(new Forecast(forecastInfoObj));
-//   });
-
-//   weatherResults.length < 1 ? response.status(500).send('Error. No weather data for this city.') : response.status(200).send(weatherResults);
-// });
-
 app.get('/weather', async (request, response) => {
   try{
     let lat = request.query.lat;
     let lon = request.query.lon;
-    let weatherURL = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${lat}&lon=${lon}&key=${process.env.WEATHER_API_KEY}`;
+    let weatherURL = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${lat}&lon=${lon}&key=${process.env.WEATHER_API_KEY}&days=3`;
     let newWeather = await axios.get(weatherURL);
     // console.log('here is weather data from api',stringify(newWeather.data));
     let newWeatherArr = newWeather.data.data.map((day) => new Forecast(day));
@@ -77,6 +58,9 @@ app.get('/weather', async (request, response) => {
   }
 });
 
+app.get('/movies', getMovies);
+
+
 // this will run for any route not defined above (* is a catch-all)
 app.get('*', (request, response) => {
   response.send('That route does not exist');
@@ -84,6 +68,9 @@ app.get('*', (request, response) => {
 
 // ERRORS
 // handle any errors
+app.use((error, req, res, next) => {
+  res.status(500).send(error.message);
+});
 
 // CLASSES
 class Forecast {
