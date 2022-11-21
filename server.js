@@ -2,8 +2,8 @@
 
 const express = require('express');
 const cors = require('cors');
-const getWeather = require('./components/weather');
-const getMovies = require('./components/movies');
+const getWeather = require('./modules/weather');
+const getMovies = require('./modules/movies');
 require('dotenv').config();
 
 const app = express();
