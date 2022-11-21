@@ -8,14 +8,13 @@ function getMovies(selectedCity) {
   let movieURL = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&language=en-US&query=${selectedCity}&page=1include_adult=false`;
   let key = `movies-${selectedCity}`;
   if (cache[key] && (Date.now() - cache[key].timestamp < 10000)) {
-    console.log('Cache hit');
+    console.log('Cache hit - movies');
   } else {
-    console.log('Cache miss');
+    console.log('Cache miss - movies');
     cache[key] = {};
     cache[key].timestamp = Date.now();
     cache[key].data = axios.get(movieURL)
       .then(res => {
-        console.log('movie data', res.data);
         return parseMovies(res.data);
       });
   }
@@ -36,7 +35,6 @@ function parseMovies(movieData) {
 
 class Movie {
   constructor(movie) {
-    console.log(movie);
     this.releaseDate = movie.release_date;
     this.title = movie.title;
     this.overview = movie.overview;
