@@ -1,29 +1,28 @@
 'use strict';
 
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const getWeather = require('./modules/weather');
 const getMovies = require('./modules/movies');
-require('dotenv').config();
 
 const app = express();
 app.use(cors());
+app.get('/weather', weatherHandler);
+app.get('/movies', getMovies);
 
 const PORT = process.env.PORT || 3002;
 
-app.get('/', (request, response) => {
-  response.send('Hello from my server');
-});
-app.get('/weather', getWeather);
-app.get('/movies', getMovies);
-app.get('*', (request, response) => {
-  response.send('That route does not exist');
-});
+function weatherHandler(request, response) {
+  // const { lat, lon } = request.query;
+  const lat = request.query.lat;
+  const lon = request.query.lon;
+  getWeather(lat, lon)
+    .then(summaries => response.send(summaries))
+    .catch((error) => {
+      console.error(error);
+      response.status(200).send('Sorry. Something went wrong!');
+    });
+}
 
-app.use((error, req, res, next) => {
-  res.status(500).send(error.message);
-});
-
-app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
-
-
+app.listen(PORT, () => console.log(`Server up on ${PORT}`));
